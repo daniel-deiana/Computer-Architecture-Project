@@ -1,9 +1,9 @@
-#include <time.h>
 #include <math.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 #define RED "\033[0;31m"
 #define GREEN "\033[32m"
@@ -47,9 +47,10 @@
     printf("+-------------------------------------------+\n");
 
 #define DEBUG_0
-#define TEST
-#define SEQ
+// #define SEQ
 #define THREAD
+#define TEST
+#define SIMULATION
 
 struct data
 {
@@ -59,10 +60,10 @@ struct data
 };
 
 void print(int *, int, int);
-void validate(int*, int*, int, int, int); 
+void validate(int *, int *, int, int);
 
 void convolution_seq(int *, int *, int *, int, int, int);
-void convolution_thread(int *, int *, int *, int, int, int);
+void convolution_thread(int *, int *, int *, int, int, int, int);
 
 int write_file(char *, int *, int);
 int write_execution_time(char *, int, double);

@@ -1,53 +1,25 @@
 /*
  * Multithread implementantion of convolution
  */
+
 #include <omp.h>
+#include <stdio.h>
 
-void convolution_thread(int* output, int* input, int* kernel, int input_rows, int input_columns, int kernel_size)
-{
-    // This holds the convolution results for an index.
-    int convolute = 0;
-    
-    // Used for input matrix index.
-    int i, j, x, y, k, l;
+void convolution_thread(int *output, int *input, int *kernel, int input_rows, int input_columns, int kernel_size, int n_thread) {
 
-    omp_set_num_threads(32);
+    int out_size = input_rows - kernel_size + 1;
 
-    #pragma omp parallel shared(output, input, kernel, input_rows, input_columns, kernel_size) private(convolute, x, y, i, j, k, l) 
-    {
-        #pragma omp for nowait
-        // Fill output matrix: rows and columns are i and j respectively.
-        for (i = 0; i < (input_rows - kernel_size + 1); i++)
+    #pragma omp parallel for num_threads(n_thread) shared(input,kernel) schedule(static)
+    for (int x = 0; x < out_size; x++){
+        // printf("Thread id: %d\n", omp_get_thread_num());
+        for (int y = 0; y < out_size; y++)
         {
-            for (j = 0; j < (input_columns - kernel_size + 1); j++)
-            {
-                x = i;
-                y = j;
-
-                // Kernel rows and columns are k and l respectively.
-                for (k = 0; k < kernel_size; k++)
-                {
-                    for (l = 0; l < kernel_size; l++)
-                    {
-                        // Convolute here.
-                        convolute += kernel[k*kernel_size + l] * input[x*input_columns + y];
-                        //printf("\tTHREAD[%d] -> Computing kernel[%d][%d]*input[%d][%d] = %d\n", omp_get_thread_num(), k, l, x, y, kernel[k*kernel_size + l]*input[x*input_columns + y]);
-
-                        // Move right.
-                        y++;
-                    }
-                    // Move down.
-                    x++; 
-
-                    // Restart column position
-                    y = j;
+            for (int kx = 0; kx < kernel_size; kx++) {   
+                #pragma omp simd
+                for (int ky = 0; ky < kernel_size; ky++) {
+                    /* Computing output element */
+                    output[x * out_size + y] += input[(x + kx) * input_rows + y + ky] * kernel[kx * kernel_size + ky];
                 }
-                // Add result to output matrix.
-                output[i*(input_columns - kernel_size + 1) + j] = convolute;
-                //printf("\tTHREAD[%d] -> output[%d][%d] = %d\n", omp_get_thread_num(), i, j, convolute);
-                
-                // Needed before we move on to the next index.
-                convolute = 0;
             }
         }
     }
