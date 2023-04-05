@@ -3,3 +3,5 @@
 conv
 create_input
 .vscode
+.ypynb_checkpoints
+data
