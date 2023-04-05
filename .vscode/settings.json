@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "*.s": "asm-intel-x86-generic",
-        "*.S": "bat",
-        "chrono": "cpp"
-    }
-}
