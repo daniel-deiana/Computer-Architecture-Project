@@ -5,3 +5,4 @@ create_input
 .vscode
 .ypynb_checkpoints
 data
+.DS_store

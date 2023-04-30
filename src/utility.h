@@ -49,7 +49,7 @@
 #define DEBUG_0
 // #define SEQ
 #define THREAD
-#define TEST
+//#define TEST
 #define SIMULATION
 
 struct data

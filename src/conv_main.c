@@ -1,4 +1,9 @@
 #include "utility.h"
+#include <time.h>
+#include "timer.cpp"
+
+
+void convolution_pthread(int *output, int *input, int *kernel, int input_rows, int input_columns, int kernel_size, int n_thread);
 
 int main(int argc, char *argv[])
 {
@@ -11,8 +16,6 @@ int main(int argc, char *argv[])
     char *image_path = argv[1];
     char *kernel_path = argv[2];
     int n_thread = atoi(argv[3]);
-
-
 
     struct data image;
     struct data kernel;
@@ -61,7 +64,7 @@ int main(int argc, char *argv[])
     image_f.rows = image.rows - kernel.rows + 1;
     image_f.columns = image.columns - kernel.columns + 1;
 
-    image_f.raw_data = (int *)malloc(sizeof(int) * image_f.rows * image_f.columns);
+    image_f.raw_data =  (int *)aligned_alloc(64,(sizeof(int) * image_f.rows * image_f.columns));
 #endif
 
 #ifdef TEST
@@ -77,28 +80,25 @@ int main(int argc, char *argv[])
     }
 
 #ifdef SIMULATION
-    clock_t start, end;
+    double start, end;
     double execution_time = 0.0;
-    start = clock();
+    // start = clock();
+    Timer* t = new Timer(); 
 #endif
 
 #if defined(SEQ) && defined(SIMULATION)
     convolution_seq(image_f.raw_data, image.raw_data, kernel.raw_data, image.rows, image.columns, kernel_size);
 #elif defined(THREAD) && defined(SIMULATION)
-    convolution_thread(image.raw_data, image.raw_data, kernel.raw_data, image.rows, image.columns, kernel_size, n_thread);
+    convolution_pthread(image_f.raw_data, image.raw_data, kernel.raw_data, image.rows, image.columns, kernel_size, n_thread);
 #else // Used to validate multithread convolution
     convolution_seq(output_seq.raw_data, image.raw_data, kernel.raw_data, image.rows, image.columns, kernel_size);
     convolution_thread(output_thread.raw_data, image.raw_data, kernel.raw_data, image.rows, image.columns, kernel_size, n_thread);
     validate(output_seq.raw_data, output_thread.raw_data, output_seq.rows, output_seq.columns);
 #endif
 
-#ifdef SIMULATION
-    end = clock();
-    execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
-#endif
 
-    printf("%f\n",execution_time);
-
+    delete t;
+    // printf("%f\n",(clock()-start)/CLOCKS_PER_SEC);
     free(image.raw_data);
     free(kernel.raw_data);
 

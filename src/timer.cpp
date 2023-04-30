@@ -1,4 +1,6 @@
 #include "timer.hpp"
+
+
 Timer::Timer(){
     stopped = false;
     this->m_startTimePoint = std::chrono::high_resolution_clock::now();

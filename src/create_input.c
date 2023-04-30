@@ -26,8 +26,10 @@ int main(int argc, char* argv[])
 
     int* img = (int*) malloc((size_t) sizeof(int)*img_rows*img_columns);
 
-    for(int i = 0; i < img_rows*img_columns; i++)
-        *(img + i) = rand() % 256;
+    for(int i = 0; i < img_rows*img_columns; i++) {
+        if( i < img_rows*img_columns/2)
+            *(img + i) = rand() % 256;
+    }
 
     if(write_file(img_path, img, img_rows*img_columns) == -1)
         exit(-1);
